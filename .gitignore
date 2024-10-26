@@ -1,5 +1,6 @@
 .venv/
 .idea/
 __pycache__/
-dataset/flickr30k_images
+dataset/
+
 .DS_Store
