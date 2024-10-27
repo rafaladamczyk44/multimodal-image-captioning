@@ -2,8 +2,6 @@ import os
 from PIL import Image
 from torch.utils.data import Dataset
 
-# from formatting_captions import image_name
-
 
 class FlickrDataset(Dataset):
     """
@@ -39,4 +37,4 @@ class FlickrDataset(Dataset):
         if self.transformations:
             image = self.transformations(image)
 
-        return image, img_name, caption
+        return image
