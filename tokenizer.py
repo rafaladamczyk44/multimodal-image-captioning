@@ -19,13 +19,16 @@ class Tokenizer:
         tokenized_sentences = []
 
         for line in just_text:
+            # Split sentences into words - tokens
             tokens = word_tokenize(line)
             tokenized_sentences.append(tokens)
 
         all_tokens = [token for sentence in tokenized_sentences for token in sentence]
 
+        # Add tokens values based on the frequency
         freq_dist = FreqDist(all_tokens)
 
+        # Special tokens for padding, start/end of sentence and unknown tokens
         special_tokens = ['<PAD>', '<SOS>', '<EOS>', '<UNK>']
 
         # Start a vocab dict.
