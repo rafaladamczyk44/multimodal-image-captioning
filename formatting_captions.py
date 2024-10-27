@@ -1,8 +1,9 @@
 import csv
 
-# Paths to your input and output files
-input_file = 'dataset/results.csv'  # Original CSV file with "| " delimiter
-output_file = 'dataset/captions_formatted.txt'  # Output file with tab-separated format
+"""Formatting the original captions file"""
+
+input_file = 'dataset/results.csv'
+output_file = 'dataset/captions_formatted.txt'
 
 # Open the original file and the output file
 with open(input_file, 'r', encoding='utf-8') as f_in, open(output_file, 'w', encoding='utf-8') as f_out:
@@ -24,4 +25,3 @@ with open(input_file, 'r', encoding='utf-8') as f_in, open(output_file, 'w', enc
         # Write to the new file in the required format
         f_out.write(f"{image_name}\t{comment}\n")
 
-print("Formatted captions file saved as captions_formatted.txt")
