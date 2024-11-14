@@ -1,15 +1,12 @@
 from dataset import FlickrDataset
+from tokenizer import Tokenizer
+
 from torchvision import transforms
 from torchvision.models import resnet34
 
-# TODO: Tokenize captions
-# TODO: Create a model
-# TODO: Train model on the data
-"""
-ResNet docs PyTorch: https://pytorch.org/hub/pytorch_vision_resnet/
-"""
+file = 'dataset/captions_formatted.txt'
 
-model = resnet34()
+vocab = Tokenizer(file).tokenize()
 
 # Change res to 256x256, change img to tensor
 transform = transforms.Compose([
@@ -22,6 +19,3 @@ transform = transforms.Compose([
 dataset = FlickrDataset(root_dir='dataset/flickr30k_images',
                         captions_file='dataset/captions_formatted.txt',
                         transformations=transform)
-
-
-print(dataset.__getitem__(1))
