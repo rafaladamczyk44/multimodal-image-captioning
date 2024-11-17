@@ -2,8 +2,6 @@ from nltk import word_tokenize, FreqDist
 from sympy import sequence
 
 
-# TODO: Add padding
-
 class Tokenizer:
     def __init__(self, file):
         self.file = file
