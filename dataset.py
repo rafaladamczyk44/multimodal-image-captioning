@@ -11,10 +11,12 @@ class FlickrDataset(Dataset):
         captions_file:str - path to file with captions (img /t img_caption)
         transforms: transformations to be applied on a sample
     """
-    def __init__(self, root_dir, captions_file, transformations=None):
+    def __init__(self, root_dir, captions_file,tokenizer, max_seq_len=20, transformations=None):
         self.root_dir = root_dir
         self.transformations = transformations
         self.image_captions = []
+        self.tokenizer = tokenizer
+        self.max_seq_len = max_seq_len
 
         # Read the captions file
         with open(captions_file, 'r', encoding='utf-8') as f:
@@ -37,4 +39,8 @@ class FlickrDataset(Dataset):
         if self.transformations:
             image = self.transformations(image)
 
-        return image
+        # Tokenize and pad the caption
+        tokenized_caption = self.tokenizer.tokenize(caption)
+        padded_caption = self.tokenizer.pad_sequence(tokenized_caption, self.max_seq_len)
+
+        return image, padded_caption
