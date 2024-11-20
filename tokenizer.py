@@ -1,6 +1,8 @@
 from nltk import word_tokenize, FreqDist
+import string
 from sympy import sequence
 
+# TODO: Change tokenization type or remove unique words
 
 class Tokenizer:
     def __init__(self, file):
@@ -12,50 +14,36 @@ class Tokenizer:
         return len(self.vocab)
 
     def _build_vocab(self):
-        """Moving tokenize() method functionality here,
-        as this method will build vocabulary, tokenize() will be used for tokenizing captions"""
+        """
+        Moving tokenize() method functionality here,
+        as this method will build vocabulary, tokenize() will be used for tokenizing captions
+        """
         with open(self.file, 'r') as f:
             lines = f.readlines()
-            just_text = []
-            for line in lines:
-                just_text.append(line.split('\t')[1])
-
+            just_text = [line.split('\t')[1] for line in lines]
         f.close()
-        tokenized_sentences = []
-
-        for line in just_text:
-            # Split sentences into words - tokens
-            tokens = word_tokenize(line)
-            tokenized_sentences.append(tokens)
-
-        all_tokens = [token for sentence in tokenized_sentences for token in sentence]
-
-        # Add tokens values based on the frequency
-        freq_dist = FreqDist(all_tokens)
 
         # Special tokens for padding, start/end of sentence and unknown tokens
         # 0, 1, 2, 3 indexes for special tokens
         special_tokens = ['<PAD>', '<SOS>', '<EOS>', '<UNK>']
+        letters = set(''.join(just_text))
 
-        # Start a vocab dict.
-        # Add special tokens
+        allowed_letters = set(letters) - set(string.punctuation)
+        allowed_letters = {char for char in allowed_letters if char.isalnum()}
+
         vocab = {token: idx for idx, token in enumerate(special_tokens)}
 
-        # Add words to vocab
-        for word in freq_dist:
-            # Avoid duplicates
-            if word not in vocab:
-                vocab[word] = len(vocab)
+        for char in sorted(allowed_letters):
+            if char not in vocab:
+                vocab[char] = len(vocab)
 
         return vocab
 
     def tokenize(self, caption:str):
         """
-        This method returns tokenized caption seq.
+        Tokenize a caption
         """
-        tokens = word_tokenize(caption)
-        # Get the token number from dict or unknown
-        token_ind = [self.vocab.get(token, self.vocab['<UNK>']) for token in tokens]
+        token_ind = [self.vocab.get(char, self.vocab['<UNK>']) for char in caption if char.isalnum()]
         # Return a sentence SOS + tokens + EOS
         return [self.vocab['<SOS>']] + token_ind + [self.vocab['<EOS>']]
 
