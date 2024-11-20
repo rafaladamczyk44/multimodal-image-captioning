@@ -1,6 +1,15 @@
 import csv
-
+import re
 """Formatting the original captions file"""
+
+def preprocess_text(text):
+    # Lowercase the text
+    text = text.lower()
+    # Remove unwanted special characters but keep punctuation and numbers
+    text = re.sub(r'[^a-z0-9\s.,!?]', '', text)
+    # Replace multiple spaces with a single space
+    text = re.sub(r'\s+', ' ', text).strip()
+    return text
 
 input_file = 'dataset/results.csv'
 output_file = 'dataset/captions_formatted.txt'
