@@ -2,7 +2,6 @@ from nltk import word_tokenize, FreqDist
 import string
 from sympy import sequence
 
-# TODO: Change tokenization type or remove unique words
 
 class Tokenizer:
     def __init__(self, file):

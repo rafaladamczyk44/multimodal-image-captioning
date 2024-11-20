@@ -19,7 +19,7 @@ class Encoder(nn.Module):
 
         return self.resnet(x)  # Shape: (batch_size, 512, 7, 7)
 
-# TODO: Check if vocab size is correctly or if it's making bottleneck here
+
 class Decoder(nn.Module):
     """
     Decoder takes the output of Encoder class, which is a matrix of extracted features from an image
