@@ -11,7 +11,7 @@ class FlickrDataset(Dataset):
         captions_file:str - path to file with captions (img /t img_caption)
         transforms: transformations to be applied on a sample
     """
-    def __init__(self, root_dir, captions_file,tokenizer, max_seq_len=20, transformations=None):
+    def __init__(self, root_dir, captions_file,tokenizer, max_seq_len, transformations=None):
         self.root_dir = root_dir
         self.transformations = transformations
         self.image_captions = []
@@ -31,6 +31,7 @@ class FlickrDataset(Dataset):
 
     def __getitem__(self, idx):
         img_name, caption = self.image_captions[idx]
+        # print(f"Caption type: {type(caption)}, Caption value: {caption}")
         img_path = os.path.join(self.root_dir, img_name)
 
         # Open the image
