@@ -22,17 +22,20 @@ class Encoder(nn.Module):
 
 class Decoder(nn.Module):
     """
-    Decoder takes the output of Encoder class, which is a matrix of extracted features from an image
-    It will be trained on vocabulary build in the project to generate a description of provided image
-    So changing extracted features into attention matrix output
+    Transformer based decoder for image caption generation.
+    Returns torch.Tensor of shape (seq_len, batch_size, vocab_size)
+        vocab_size:int - Total size of vocabulary built by Tokenizer
+    Forward:
+        tgt:Tensor - Tokenized caption + image features
+        img_features:Tensor - Image features from encoder
     """
-    def __init__(self, vocab_size, d_model=512, n_heads=8, num_layers=8, max_seq_len=64):
+    def __init__(self, vocab_size, d_model=512, n_heads=16, num_layers=16, max_seq_len=64):
         super().__init__()
         self.d_model = d_model
         self.embedding = nn.Embedding(vocab_size, d_model)
         self.memory_projection = nn.Linear(512, d_model)
         self.positional_encoding = self._generate_positional_encoding(max_seq_len, d_model)
-        self.transformer_decoder_layer = nn.TransformerDecoderLayer(d_model=d_model, nhead=n_heads)
+        self.transformer_decoder_layer = nn.TransformerDecoderLayer(d_model=d_model, nhead=n_heads, dropout=0.3)
         self.transformer_decoder = nn.TransformerDecoder(self.transformer_decoder_layer, num_layers=num_layers)
         self.linear = nn.Linear(d_model, vocab_size)
 
@@ -58,7 +61,6 @@ class Decoder(nn.Module):
         return positional_encoding  # Shape: (1, max_seq_len, d_model)
 
     def forward(self, tgt, img_features):
-        # Handle different possible input shapes
         # Handle image features
         if img_features.dim() == 4:
             # Reshape 4D tensor from CNN features
@@ -71,19 +73,18 @@ class Decoder(nn.Module):
 
         # Project image features to model dimension
         img_memory = self.memory_projection(img_memory)  # (batch_size, 64, d_model)
-        tgt = tgt.long()
 
         # Embed the target (caption) and add positional encoding
-        tgt_embedded = self.embedding(tgt) #* torch.sqrt(torch.tensor(self.d_model, dtype=torch.float32))
+        tgt = tgt.long()
+        tgt_embedded = self.embedding(tgt)
+
         batch_size, seq_len, _ = tgt_embedded.shape
 
         positional_encoding = self.positional_encoding[:, :seq_len, :].to(tgt.device)
         tgt_embedded = tgt_embedded + positional_encoding
 
         mask = nn.Transformer().generate_square_subsequent_mask(batch_size).to(tgt.device)
-        # mask = torch.triu(torch.ones(seq_len, seq_len, dtype=torch.bool), diagonal=1).to(tgt.device)
-        # mask = mask.unsqueeze(0).expand(batch_size, -1, -1)
 
         output = self.transformer_decoder(tgt_embedded, img_memory, tgt_mask=mask)
         output = self.linear(output)
-        return output  # Shape: (seq_len, batch_size, vocab_size)
+        return output
