@@ -1,7 +1,9 @@
 import os
 from PIL import Image
 from torch.utils.data import Dataset
+from tokenizers import Tokenizer
 
+# tokenizer = Tokenizer.from_file('wordpiece_tokenizer.json')
 
 class FlickrDataset(Dataset):
     """
@@ -41,7 +43,10 @@ class FlickrDataset(Dataset):
             image = self.transformations(image)
 
         # Tokenize and pad the caption
-        tokenized_caption = self.tokenizer.tokenize(caption)
-        padded_caption = self.tokenizer.pad_sequence(tokenized_caption, self.max_seq_len)
+        tokenized_caption = self.tokenizer.encode(caption).ids
 
-        return image, padded_caption
+        tokenized_caption = tokenized_caption[:self.max_seq_len]  # truncate if too long
+        tokenized_caption += [self.tokenizer.token_to_id('<PAD>')] * (self.max_seq_len - len(tokenized_caption))
+        # padded_caption = self.tokenizer.pad_sequence(tokenized_caption, self.max_seq_len)
+
+        return image, tokenized_caption
