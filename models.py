@@ -9,7 +9,7 @@ class Encoder(nn.Module):
     """
     def __init__(self):
         super().__init__()
-        self.resnet = resnet34(pretrained=True)
+        self.resnet = resnet34()
         # Last layer is linear for classification, don't need it here, just features of the passed image
         self.resnet = nn.Sequential(*list(self.resnet.children())[:-2])
 
@@ -29,13 +29,13 @@ class Decoder(nn.Module):
         tgt:Tensor - Tokenized caption + image features
         img_features:Tensor - Image features from encoder
     """
-    def __init__(self, vocab_size, d_model=512, n_heads=16, num_layers=16, max_seq_len=64):
+    def __init__(self, vocab_size, max_seq_len, d_model=512, n_heads=8, num_layers=8):
         super().__init__()
         self.d_model = d_model
         self.embedding = nn.Embedding(vocab_size, d_model)
         self.memory_projection = nn.Linear(512, d_model)
         self.positional_encoding = self._generate_positional_encoding(max_seq_len, d_model)
-        self.transformer_decoder_layer = nn.TransformerDecoderLayer(d_model=d_model, nhead=n_heads, dropout=0.3)
+        self.transformer_decoder_layer = nn.TransformerDecoderLayer(d_model=d_model, nhead=n_heads, dropout=0.3, batch_first=True)
         self.transformer_decoder = nn.TransformerDecoder(self.transformer_decoder_layer, num_layers=num_layers)
         self.linear = nn.Linear(d_model, vocab_size)
 
@@ -83,7 +83,7 @@ class Decoder(nn.Module):
         positional_encoding = self.positional_encoding[:, :seq_len, :].to(tgt.device)
         tgt_embedded = tgt_embedded + positional_encoding
 
-        mask = nn.Transformer().generate_square_subsequent_mask(batch_size).to(tgt.device)
+        mask = nn.Transformer().generate_square_subsequent_mask(seq_len).to(tgt.device)
 
         output = self.transformer_decoder(tgt_embedded, img_memory, tgt_mask=mask)
         output = self.linear(output)
