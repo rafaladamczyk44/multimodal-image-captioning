@@ -14,8 +14,7 @@ class Tokenizer:
 
     def _build_vocab(self):
         """
-        Moving tokenize() method functionality here,
-        as this method will build vocabulary, tokenize() will be used for tokenizing captions
+        Build vocabulary from text file
         """
         with open(self.file, 'r') as f:
             lines = f.readlines()
@@ -48,7 +47,7 @@ class Tokenizer:
 
     def pad_sequence(self, seq, max_length):
         """
-        This method pads the tokenized caption seq.
+        Pad the tokenized caption to match max_seq_len
         """
         pad_index = self.vocab['<PAD>']
         if len(seq) < max_length:
